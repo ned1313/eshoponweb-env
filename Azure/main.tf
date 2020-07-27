@@ -28,6 +28,19 @@ variable "capacity" {
   description = "Number of instances for App Service Plan"
 }
 
+variable "client_ip" {
+  type = string
+  description = "Client IP address for SQL access"
+}
+
+variable "dbuser" {
+  type = string
+}
+
+variable "dbpassword" {
+  type = string
+}
+
 ############################
 # PROVIDERS
 ############################
@@ -99,8 +112,8 @@ resource "azurerm_mssql_server" "sqlserver" {
   resource_group_name          = azurerm_resource_group.eshopweb.name
   location                     = azurerm_resource_group.eshopweb.location
   version                      = "12.0"
-  administrator_login          = "gigadmin"
-  administrator_login_password = "Jun!p3rtree13"
+  administrator_login          = var.dbuser
+  administrator_login_password = var.dbpassword
 
 }
 
@@ -111,4 +124,28 @@ resource "azurerm_mssql_database" "sqldb" {
   max_size_gb    = 50
   sku_name = "GP_Gen5_2"
 
+}
+
+resource "azurerm_sql_firewall_rule" "allowazure" {
+  name                = "AllowAzureServices"
+  resource_group_name = azurerm_resource_group.eshopweb.name
+  server_name         = azurerm_mssql_server.sqlserver.name
+  start_ip_address    = "0.0.0.0"
+  end_ip_address      = "0.0.0.0"
+}
+
+resource "azurerm_sql_firewall_rule" "allowlocal" {
+  name                = "AllowClientIP"
+  resource_group_name = azurerm_resource_group.eshopweb.name
+  server_name         = azurerm_mssql_server.sqlserver.name
+  start_ip_address    = var.client_ip
+  end_ip_address      = var.client_ip
+}
+
+output "sqlcmd1" {
+  value = "sqlcmd -d ${azurerm_mssql_database.sqldb.name} -i InitialCreate.sql -S tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433 -U gigadmin@${azurerm_mssql_server.sqlserver.name} -P Jun!p3rtree13"
+}
+
+output "sqlcmd2" {
+  value = "sqlcmd -d ${azurerm_mssql_database.sqldb.name} -i InitialCreateAppID.sql -S tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433 -U gigadmin@${azurerm_mssql_server.sqlserver.name} -P Jun!p3rtree13"
 }

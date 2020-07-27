@@ -1,0 +1,9 @@
+# Steps
+# Deploy environment
+# Update app.yaml
+# Run SQL commands - no need to create DB
+# Run gcloud app deploy
+
+
+sqlcmd -d eShopOnWeb -i InitialCreate.sql -S tcp:SERVER_NAME,1433 -U USERNAME -P PASSWORD
+sqlcmd -d eShopOnWeb -i InitialCreateAppID.sql -S tcp:SERVER_NAME,1433 -U USERNAME -P PASSWORD
