@@ -94,13 +94,13 @@ resource "azurerm_app_service" "example" {
   connection_string {
     name  = "CatalogConnection"
     type  = "SQLAzure"
-    value = "Data Source=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sqldb.name};User Id=gigadmin@${azurerm_mssql_server.sqlserver.name};Password=Jun!p3rtree13"
+    value = "Data Source=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sqldb.name};User Id=${var.dbuser}@${azurerm_mssql_server.sqlserver.name};Password=${var.dbpassword}"
   }
 
     connection_string {
     name  = "IdentityConnection"
     type  = "SQLAzure"
-    value = "Data Source=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sqldb.name};User Id=gigadmin@${azurerm_mssql_server.sqlserver.name};Password=Jun!p3rtree13"
+    value = "Data Source=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sqldb.name};User Id=${var.dbuser}@${azurerm_mssql_server.sqlserver.name};Password=${var.dbpassword}"
   }
 }
 
@@ -143,9 +143,9 @@ resource "azurerm_sql_firewall_rule" "allowlocal" {
 }
 
 output "sqlcmd1" {
-  value = "sqlcmd -d ${azurerm_mssql_database.sqldb.name} -i InitialCreate.sql -S tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433 -U gigadmin@${azurerm_mssql_server.sqlserver.name} -P Jun!p3rtree13"
+  value = "sqlcmd -d ${azurerm_mssql_database.sqldb.name} -i InitialCreate.sql -S tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433 -U ${var.dbuser}@${azurerm_mssql_server.sqlserver.name} -P ${var.dbpassword}"
 }
 
 output "sqlcmd2" {
-  value = "sqlcmd -d ${azurerm_mssql_database.sqldb.name} -i InitialCreateAppID.sql -S tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433 -U gigadmin@${azurerm_mssql_server.sqlserver.name} -P Jun!p3rtree13"
+  value = "sqlcmd -d ${azurerm_mssql_database.sqldb.name} -i InitialCreateAppID.sql -S tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433 -U ${var.dbuser}@${azurerm_mssql_server.sqlserver.name} -P ${var.dbpassword}"
 }
