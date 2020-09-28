@@ -95,3 +95,29 @@ resource "aws_security_group" "lb_sg" {
 
 }
 
+# DOC DB Security Group
+
+resource "aws_security_group" "docdb_sg" {
+  name        = "docdb_sg"
+  description = "Allow traffic for ELB"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    description = "Allow Mongo"
+    from_port   = 27017
+    to_port     = 27017
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_range]
+  }
+
+  egress {
+    description = "Allow Mongo"
+    from_port   = 27017
+    to_port     = 27017
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+}
+
+

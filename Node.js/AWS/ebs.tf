@@ -150,6 +150,12 @@ resource "aws_elastic_beanstalk_environment" "crud" {
         name = "VPCId"
         value = module.vpc.vpc_id
     }
+
+    setting {
+        namespace = "aws:elasticbeanstalk:application:environment"
+        name = "MONGODB_URI"
+        value = "mongodb://employer:dakjf87683rbjdvs98djh@${aws_docdb_cluster.default.endpoint}:${aws_docdb_cluster.default.port}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem"
+    }
 }
 
 # Create Elastic Beanstalk with 4 instances
