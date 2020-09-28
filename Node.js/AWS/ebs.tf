@@ -1,12 +1,12 @@
 ## Elastic Beanstalk
 
 resource "aws_elastic_beanstalk_application" "crud" {
-  name        = var.name
+  name        = terraform.workspace
   description = "Node JS CRUD"
 }
 
 resource "aws_elastic_beanstalk_environment" "crud" {
-    name = var.name
+    name = terraform.workspace
     application = aws_elastic_beanstalk_application.crud.name
     solution_stack_name = "64bit Amazon Linux 2 v5.2.1 running Node.js 12"
     description =  "Node JS env CRUD"
@@ -67,7 +67,7 @@ resource "aws_elastic_beanstalk_environment" "crud" {
         resource = "AWSEBAutoScalingGroup"
         namespace = "aws:autoscaling:asg"
         name = "MinSize"
-        value = "2"
+        value = "3"
     }
 
     setting {

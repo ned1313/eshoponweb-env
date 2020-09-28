@@ -10,7 +10,7 @@ variable "prefix" {
 variable "location" {
     type = string
     description = "Azure region"
-    default = "East US"
+    default = "West Central US"
 }
 
 variable "asp_tier" {
@@ -30,10 +30,19 @@ variable "capacity" {
 
 variable "dbuser" {
   type = string
-  default = "sqladmin"
+  default = "employer"
 }
 
 variable "dbpassword" {
+  type = string
+  default = "dakjf87683rbjdvs98djh"
+}
+
+variable "repo_url" {
+  type = string
+}
+
+variable "repo_branch" {
   type = string
 }
 
@@ -54,15 +63,19 @@ data "http" "my_ip" {
     url = "http://ifconfig.me"
 }
 
+locals {
+  prefix = "${var.prefix}-${terraform.workspace}"
+}
+
 #### App Service
 
 resource "azurerm_resource_group" "nightscout" {
-  name     = "nightscout-${var.prefix}"
+  name     = "nightscout-${local.prefix}"
   location = var.location
 }
 
 resource "azurerm_app_service_plan" "nightscout" {
-  name                = "nightscout-${var.prefix}"
+  name                = "nightscout-${local.prefix}"
   location            = azurerm_resource_group.nightscout.location
   resource_group_name = azurerm_resource_group.nightscout.name
   kind = "Linux"
@@ -76,7 +89,7 @@ resource "azurerm_app_service_plan" "nightscout" {
 }
 
 resource "azurerm_app_service" "nightscout" {
-  name                = "nightscout-${var.prefix}"
+  name                = "nightscout-${local.prefix}"
   location            = azurerm_resource_group.nightscout.location
   resource_group_name = azurerm_resource_group.nightscout.name
   app_service_plan_id = azurerm_app_service_plan.nightscout.id
@@ -87,11 +100,17 @@ resource "azurerm_app_service" "nightscout" {
   site_config {
     linux_fx_version = "NODE|12-lts"
     always_on = true
+    #scm_type = "LocalGit"
   }
 
-  app_settings {
-    WEBSITE_NODE_DEFAULT_VERSION = "10.15.2"
+  source_control {
+    repo_url = var.repo_url
+    branch = var.repo_branch
+  }
+
+  app_settings = {
     SCM_COMMAND_IDLE_TIMEOUT = "300"
+    MONGODB_URI = azurerm_cosmosdb_account.nightscout.connection_strings[0]
   }
 
 }
@@ -100,14 +119,14 @@ resource "azurerm_app_service" "nightscout" {
 #### Azure CosmosDB
 
 resource "azurerm_cosmosdb_account" "nightscout" {
-  name                = "nightscout-${var.prefix}"
+  name                = "nightscout-${local.prefix}"
   location            = azurerm_resource_group.nightscout.location
   resource_group_name = azurerm_resource_group.nightscout.name
   offer_type          = "Standard"
   kind                = "MongoDB"
 
   geo_location {
-    prefix            = "nightscout-${var.prefix}-customid"
+    prefix            = "nightscout-${local.prefix}-customid"
     location          = azurerm_resource_group.nightscout.location
     failover_priority = 0
   } 
@@ -135,7 +154,7 @@ resource "azurerm_cosmosdb_account" "nightscout" {
 }
 
 resource "azurerm_cosmosdb_mongo_database" "nightscout" {
-  name                = "nightscout-${var.prefix}"
+  name                = "nightscout-${local.prefix}"
   resource_group_name = azurerm_resource_group.nightscout.name
   account_name        = azurerm_cosmosdb_account.nightscout.name
   throughput          = 400

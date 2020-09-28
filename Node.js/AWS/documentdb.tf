@@ -1,13 +1,13 @@
 resource "aws_docdb_cluster_instance" "cluster_instances" {
   count              = 1
-  identifier         = "${var.name}-docdb-cluster-${count.index}"
+  identifier         = "${terraform.workspace}-docdb-cluster-${count.index}"
   cluster_identifier = aws_docdb_cluster.default.id
   instance_class     = "db.r5.large"
   
 }
 
 resource "aws_docdb_cluster" "default" {
-  cluster_identifier = "${var.name}-docdb-cluster"
+  cluster_identifier = "${terraform.workspace}-docdb-cluster"
   master_username    = "employer"
   master_password    = "dakjf87683rbjdvs98djh"
   db_subnet_group_name = aws_docdb_subnet_group.default.name
@@ -17,7 +17,7 @@ resource "aws_docdb_cluster" "default" {
 }
 
 resource "aws_docdb_subnet_group" "default" {
-  name       = "${var.name}-docdb"
+  name       = "${terraform.workspace}-docdb"
   subnet_ids = module.vpc.public_subnets
 
   tags = {
