@@ -100,16 +100,10 @@ resource "azurerm_app_service" "nightscout" {
   site_config {
     linux_fx_version = "NODE|12-lts"
     always_on = true
-    #scm_type = "LocalGit"
-  }
-
-  source_control {
-    repo_url = var.repo_url
-    branch = var.repo_branch
+    scm_type = "LocalGit"
   }
 
   app_settings = {
-    SCM_COMMAND_IDLE_TIMEOUT = "300"
     MONGODB_URI = azurerm_cosmosdb_account.nightscout.connection_strings[0]
   }
 
@@ -158,4 +152,16 @@ resource "azurerm_cosmosdb_mongo_database" "nightscout" {
   resource_group_name = azurerm_resource_group.nightscout.name
   account_name        = azurerm_cosmosdb_account.nightscout.name
   throughput          = 400
+}
+
+output "site_user" {
+  value = azurerm_app_service.nightscout.site_credential[0].username
+}
+
+output "site_pass" {
+  value = azurerm_app_service.nightscout.site_credential[0].password
+}
+
+output "site_git" {
+  value = "${azurerm_app_service.nightscout.source_control[0].repo_url}/nightscout-${local.prefix}.git"
 }

@@ -1,6 +1,6 @@
-asp_tier = "PremiumV2"
+asp_tier = "PremiumV3"
 
-asp_size = "P1v2"
+asp_size = "P1v3"
 
 prefix = "crud"
 
