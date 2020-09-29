@@ -2,7 +2,6 @@
 # VARIABLES
 ############################
 
-variable "project_name" {}
 variable "billing_account" {}
 variable "org_id" {}
 variable "region" {
@@ -14,6 +13,9 @@ variable "location_id" {}
 variable "mongodbatlas_public_key" {}
 variable "mongodbatlas_private_key" {}
 variable "mongodbatlas_org_id" {}
+variable "mongodbatlas_database_password" {
+  default = "dakjf87683rbjdvs98djh"
+}
 
 ############################
 # PROVIDERS
@@ -62,13 +64,32 @@ resource "mongodbatlas_cluster" "run" {
   provider_region_name        = "CENTRAL_US"
 }
 
+resource "mongodbatlas_project_ip_whitelist" "run" {
+  project_id = mongodbatlas_project.run.id
+  cidr_block = "0.0.0.0/0"
+  comment    = "Allow all"
+}
+
+resource "mongodbatlas_database_user" "run" {
+  username           = "Employer"
+  password = var.mongodbatlas_database_password
+  project_id         = mongodbatlas_project.run.id
+  auth_database_name = "admin"
+
+  roles {
+    role_name     = "atlasAdmin"
+    database_name = "admin"
+  }
+
+}
+
 resource "random_id" "id" {
   byte_length = 4
-  prefix      = var.project_name
+  prefix      = terraform.workspace
 }
 
 resource "google_project" "project" {
-  name            = var.project_name
+  name            = terraform.workspace
   project_id      = random_id.id.hex
   billing_account = var.billing_account
   org_id          = var.org_id
@@ -112,5 +133,5 @@ output "project_id" {
 }
 
 output "plstring" {
-    value = mongodbatlas_cluster.run.connection_strings[0]
+    value = mongodbatlas_cluster.run.connection_strings[0].standard
 }
