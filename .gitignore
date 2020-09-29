@@ -29,3 +29,4 @@ override.tf.json
 # example: *tfplan*
 *.tfplan
 Node.js/GCP/adminproject-284223-1e54ad6f3354.json
+*.log
